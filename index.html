@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Buy Now Example</title>
+    <style>
+        /* Add your styles for the checkout box here */
+        #checkoutBox {
+            display: none;
+            max-width: 400px;
+            margin: 20px auto;
+            padding: 20px;
+            border: 1px solid #ccc;
+            background-color: #f9f9f9;
+            /* Add background image for the checkout box */
+            background-image: url('checkout-background.jpg');
+            background-size: cover;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h2 {
+            color: #3498db; /* Bright blue */
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #555;
+        }
+
+        input {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 16px;
+            box-sizing: border-box;
+        }
+
+        button {
+            padding: 10px;
+            font-size: 16px;
+            cursor: pointer;
+            background-color: #2ecc71; /* Bright green */
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+        }
+
+        .back-button {
+            background-color: #f39c12; /* Bright orange */
+            color: #fff;
+            margin-right: 10px;
+        }
+
+        /* Payment options styling */
+        .payment-options {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .payment-option {
+            display: flex;
+            align-items: center;
+            padding: 8px;
+            border: 1px solid #ccc;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+
+        .payment-option:hover {
+            background-color: #ecf0f1; /* Light grey */
+        }
+
+        .payment-option img {
+            width: 30px;
+            margin-right: 8px;
+        }
+
+        /* Bank images */
+        .bank-image {
+            width: 50px;
+            margin-right: 8px;
+        }
+
+        /* OTP styling */
+        #otpSection {
+            display: none;
+            margin-top: 20px;
+        }
+
+        /* Total amount styling */
+        #totalAmount {
+            margin-top: 20px;
+            font-weight: bold;
+            font-size: 18px;
+            color: #e74c3c; /* Bright red */
+        }
+
+        /* City and State details styling */
+        #cityStateDetails {
+            margin-top: 20px;
+            font-size: 16px;
+            color: #555;
+        }
+
+        /* Style for the confirmation message */
+        #confirmationMessage {
+            display: none;
+            text-align: center;
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #27ae60; /* Bright green */
+            color: #fff;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Product details and Buy Now button -->
+    <div id="productDetails">
+        <h1>Product Name</h1>
+        <p>Product description and details go here.</p>
+        <button onclick="showCheckoutBox()">Buy Now</button>
+    </div>
+
+    <!-- Checkout box -->
+    <div id="checkoutBox">
+        <h2>Checkout</h2>
+        <button class="back-button" onclick="goBack()">Back</button>
+        <p style="color: #777;">Enter your details below:</p>
+        <!-- Shipping address form -->
+        <form onsubmit="return validateForm()">
+            <label for="shippingAddress">Shipping Address:</label>
+            <input type="text" id="shippingAddress" name="shippingAddress" placeholder="Enter your shipping address" required>
+            <label for="pincode">Pincode:</label>
+            <input type="text" id="pincode" name="pincode" placeholder="Enter pincode" onblur="fetchAddressDetails()" required>
+
+            <!-- City and State details based on pincode -->
+            <div id="cityStateDetails"></div>
+
+            <label for="city">City:</label>
+            <input type="text" id="city" name="city" placeholder="City" required>
+            <label for="state">State:</label>
+            <input type="text" id="state" name="state" placeholder="State" required>
+
+            <p style="color: #777;">Select Payment Option:</p>
+            <!-- Payment options -->
+            <div class="payment-options">
+                <div class="payment-option" onclick="selectPaymentOption('card')">
+                    <img src="card-icon.png" alt="Card">
+                    Debit/Credit Cards
+                </div>
+                <div class="payment-option" onclick="selectPaymentOption('upi')">
+                    <img src="upi-icon.png" alt="UPI">
+                    UPI
+                </div>
+                <div class="payment-option" onclick="selectPaymentOption('netbanking')">
+                    <img src="netbanking-icon.png" alt="Net Banking">
+                    Net Banking
+                </div>
+            </div>
+
+            <!-- Card details form -->
+            <div id="cardDetails" style="display: none;">
+                <label for="cardNumber">Card Number:</label>
+                <input type="text" id="cardNumber" name="cardNumber" placeholder="Enter card number" required>
+                <!-- Additional card details fields can be added as needed -->
+                <div id="otpSection">
+                    <label for="otp">Enter OTP:</label>
+                    <input type="text" id="otp" name="otp" placeholder="Enter OTP" required>
+                </div>
+            </div>
+
+            <!-- UPI details form -->
+            <div id="upiDetails" style="display: none;">
+                <label for="upiId">UPI ID:</label>
+                <input type="text" id="upiId" name="upiId" placeholder="Enter UPI ID" required>
+            </div>
+
+            <!-- Net Banking details form -->
+            <div id="netbankingDetails" style="display: none;">
+                <p>Select Bank:</p>
+                <select id="bankSelection">
+                    <option value="bankA">Bank A</option>
+                    <option value="bankB">Bank B</option>
+                    <option value="bankC">Bank C</option>
+                    <!-- Add more banks as needed -->
+                </select>
+            </div>
+
+            <!-- Total amount to be paid -->
+            <div id="totalAmount"></div>
+
+            <button type="submit">Complete Purchase</button>
+        </form>
+    </div>
+
+    <!-- Confirmation message -->
+    <div id="confirmationMessage">
+        <p id="orderConfirmationMessage">Order confirmed! Thank you for your purchase.</p>
+    </div>
+
+    <script>
+        function showCheckoutBox() {
+            // Hide product details
+            document.getElementById('productDetails').style.display = 'none';
+            // Show checkout box
+            document.getElementById('checkoutBox').style.display = 'block';
+            // Display the total amount to be paid
+            displayTotalAmount();
+        }
+
+        function goBack() {
+            // Show product details and hide checkout box
+            document.getElementById('productDetails').style.display = 'block';
+            document.getElementById('checkoutBox').style.display = 'none';
+        }
+
+        function selectPaymentOption(option) {
+            // Hide all payment details forms and OTP section
+            document.getElementById('cardDetails').style.display = 'none';
+            document.getElementById('upiDetails').style.display = 'none';
+            document.getElementById('netbankingDetails').style.display = 'none';
+            document.getElementById('otpSection').style.display = 'none';
+
+            // Show the selected payment details form
+            if (option === 'card') {
+                document.getElementById('cardDetails').style.display = 'block';
+                document.getElementById('otpSection').style.display = 'block';
+            } else if (option === 'upi') {
+                document.getElementById('upiDetails').style.display = 'block';
+            } else if (option === 'netbanking') {
+                document.getElementById('netbankingDetails').style.display = 'block';
+            }
+        }
+
+        function completePurchase() {
+            // Simulate processing and show confirmation message
+            setTimeout(function () {
+                document.getElementById('checkoutBox').style.display = 'none';
+                document.getElementById('confirmationMessage').style.display = 'block';
+            }, 1000);
+        }
+
+        function displayTotalAmount() {
+            // Simulated calculation of total amount based on items
+            // Replace this with your actual logic for calculating the total amount
+            let totalAmount = 100; // Replace with the actual amount
+            document.getElementById('totalAmount').innerHTML = `Total Amount: $${totalAmount}`;
+        }
+
+        function fetchAddressDetails() {
+            // Fetch city and state details based on pincode using PINCode API
+            const pincode = document.getElementById('pincode').value;
+            const apiUrl = `https://api.pincodeapi.com/pincode/${pincode}`;
+
+            fetch(apiUrl)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.length > 0) {
+                        const place = data[0];
+                        const city = place.region;
+                        const state = place.circle;
+                        document.getElementById('cityStateDetails').innerHTML = `City: ${city}, State: ${state}`;
+                        // Set generated values in the input fields
+                        document.getElementById('city').value = city;
+                        document.getElementById('state').value = state;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching address details:', error);
+                    document.getElementById('cityStateDetails').innerHTML = 'Unable to fetch address details.';
+                });
+        }
+
+        function validateForm() {
+            // Validate all fields in the form before submission
+            const form = document.querySelector('form');
+            const inputs = form.querySelectorAll('input[required]');
+            for (const input of inputs) {
+                if (!input.value) {
+                    alert('Please fill in all mandatory fields.');
+                    return false;
+                }
+            }
+            // If all fields are filled, proceed to complete the purchase
+            completePurchase();
+            return false; // Prevent form submission
+        }
+    </script>
+
+</body>
+</html>
